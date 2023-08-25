@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="todolistMapper">
+	<resultMap type = "todolist" id = "todolist_rm">
+		<id property ="todolistNo" column = "TODO_NO"/>
+		<result property ="todolistContent" column = "TODO_CONTENT"/>
+		<result property = "todolistDate" column ="TODO_DATE" />
+		<result property = "todolist_fl" column ="TODO_FL" />
+		<result property = "todolist_Type" column ="TODO_VAR" />
+		<result property = "memberId" column ="MEMBER_ID" />
+		<result property = "memberNo" column = "MEMBER_NO"/>
+	</resultMap>
+	
+	<select id = "choiceDateToday" parameterType = "todolist" resultMap = "todolist_rm">
+		SELECT TODO_CONTENT, TODO_VAR, DATE_FORMAT(TODO_DATE, '%Y-%m-%d')
+		FROM TODOLIST
+		WHERE MEMBER_NO = #{memberNo}
+		AND TODO_FL = 'N'
+		AND TODO_VAR = 0
+		AND DATE_FORMAT(TODO_DATE, '%Y-%m-%d') = #{todolistDate}
+	</select>
+	
+	
+	<select id = "choiceDateWeek" parameterType = "todolist" resultMap = "todolist_rm">
+		SELECT
+    TODO_CONTENT,
+    TODO_VAR,
+    DATE_FORMAT(STR_TO_DATE(TODO_DATE, '%Y-%m-%d'), '%Y-%m-%d') TODO_DATE
+FROM
+    TODOLIST
+WHERE
+    MEMBER_NO = #{memberNo}
+    AND TODO_FL = 'N'
+    AND TODO_VAR = 1
+    AND STR_TO_DATE(TODO_DATE, '%Y-%m-%d') BETWEEN
+    DATE_SUB(#{todolistDate}, INTERVAL (DAYOFWEEK(#{todolistDate}) - 1) DAY)AND
+        DATE_ADD(#{todolistDate}, INTERVAL (7 - DAYOFWEEK(#{todolistDate})) DAY);
+	</select>
+	
+	<select id = "selectTodayList" parameterType = "_int" resultMap = "todolist_rm">
+		SELECT TODO_NO,TODO_CONTENT, TODO_VAR, DATE_FORMAT(TODO_DATE, '%Y-%m-%d')
+		FROM TODOLIST
+		WHERE MEMBER_NO = #{memberNo}
+    	AND TODO_FL = 'N'
+    	AND TODO_VAR = 0
+    	AND DATE_FORMAT(TODO_DATE, '%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')
+	</select>
+
+	<select id = "selectWeekList" parameterType = "_int" resultMap = "todolist_rm">
+	SELECT
+    TODO_CONTENT,
+    TODO_VAR,
+    DATE_FORMAT(STR_TO_DATE(TODO_DATE, '%Y-%m-%d'), '%Y-%m-%d') TODO_DATE
+FROM
+    TODOLIST
+WHERE
+    MEMBER_NO = #{memberNo}
+    AND TODO_FL = 'N'
+    AND TODO_VAR = 1
+    AND STR_TO_DATE(TODO_DATE, '%Y-%m-%d') BETWEEN
+        DATE_SUB(CURDATE(), INTERVAL (DAYOFWEEK(NOW()) - 2) DAY)
+        AND DATE_ADD(CURDATE(), INTERVAL (7 - DAYOFWEEK(NOW())) DAY)
+	</select>
+	<insert id = "todayRegister" parameterType = "todolist">
+	INSERT
+	INTO TODOLIST(TODO_CONTENT,TODO_DATE,TODO_VAR,MEMBER_NO)
+	VALUES(#{todolistContent},#{todolistDate},0,
+	(SELECT MEMBER_NO
+	FROM MEMBER
+	WHERE MEMBER_ID = #{memberId})
+	)
+	</insert>
+	<insert id = "weekRegister" parameterType = "todolist">
+	INSERT
+	INTO TODOLIST(TODO_CONTENT,TODO_DATE,TODO_VAR,MEMBER_NO)
+	VALUES(#{todolistContent},#{todolistDate},1,
+	(SELECT MEMBER_NO
+	FROM MEMBER
+	WHERE MEMBER_ID = #{memberId})
+	)
+	</insert>
+	<update id = "deleteList" parameterType = "todolist">
+	UPDATE TODOLIST
+	SET TODO_FL = 'Y'
+	WHERE TODO_CONTENT = #{todolistContent}
+	AND TODO_VAR = 1
+    AND STR_TO_DATE(TODO_DATE, '%Y-%m-%d') BETWEEN
+    DATE_SUB(#{todolistDate}, INTERVAL (DAYOFWEEK(#{todolistDate}) - 1) DAY)AND
+        DATE_ADD(#{todolistDate}, INTERVAL (7 - DAYOFWEEK(#{todolistDate})) DAY)
+	</update>
+	<update id = "deleteTodayList" parameterType = "todolist">
+	UPDATE TODOLIST
+	SET TODO_FL = 'Y'
+	WHERE TODO_CONTENT = #{todolistContent}
+	AND TODO_VAR = 0
+    AND DATE_FORMAT(TODO_DATE, '%Y-%m-%d') = #{todolistDate}
+	</update>
+</mapper>

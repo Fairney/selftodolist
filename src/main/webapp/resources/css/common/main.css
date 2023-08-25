@@ -1,0 +1,122 @@
+*{
+    margin:0px;
+}
+@font-face {
+    font-family: "baskinR";
+    src: url(/src/main/webapp/resources/font/BR_FONT/baskinR_OTPGRAPIC/baskinR.otf);
+}
+
+body{
+    background-color: rgb(206, 231, 65);
+}
+.main-style{
+    /* 필수 */
+    max-width: 1920px;
+    min-width: 1080px;
+    padding-left: 5% !important;
+    padding-right: 5% !important;
+    margin: auto;  
+    
+}
+
+.flexPage{
+    display:flex;
+    width:100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.formDiv{
+    width:600px;
+    padding:50px;
+    background-color: white;
+}
+
+.todolist_Title{
+    font-family:"baskinR";
+    font-size:65px;
+    font-weight:bold;
+    color:rgb(118, 205, 188);
+}
+
+#id-pw_area{
+    display:flex;
+    border:0px;
+    flex-direction: column;
+    align-items: center;
+}
+.Btn_area{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+#loginBtn{
+    background-color: rgb(206, 231, 65);
+    color: white;
+    font-size:20px;
+    width:360px;
+    height:50px;
+    margin-top:20px;
+    border: 0px;
+}
+.id-pw_div{
+    display:flex;
+}
+
+.id-pw_div > div:first-child{
+    width:100px;
+    align-items: center;
+    display:flex;
+}
+.id-pw_div > input{
+    font-size:20px;
+}
+
+.check_area{
+    padding-top:20px;
+    display:flex;
+    justify-content: center;
+}
+.check_area > p{
+    margin:0 10 0 10;
+}
+.snsLogin_area{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    
+    padding-top:20px;   
+}
+
+.socialLoginDiv{
+    padding-top:20px;
+    display:flex;
+    justify-content: center;
+}
+.socialLoginDiv > button{
+    margin: 0px 10px 0px 10px;
+    border: 0px;
+}
+.round{
+    background-color: white;
+}
+.kakaoBtn{
+    background-color: yellow;
+    border: 0px;
+    border-radius: 10px;
+    padding:5px;
+    width:80px;
+}
+.sign_area{
+    display: flex;
+    justify-content: center;
+}
+#signUp-btn{
+    background-color: rgb(206, 231, 65);
+    color: white;
+    font-size:20px;
+    width:360px;
+    height:50px;
+    margin-top:20px;
+    border: 0px;
+}

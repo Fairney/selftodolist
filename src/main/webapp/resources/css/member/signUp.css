@@ -1,0 +1,143 @@
+@font-face {
+    font-family: "baskinR";
+    src: url(/comm/resources/font/BR_FONT/baskinR_OTPGRAPIC/baskinR.otf);
+}
+li{
+    list-style: none;
+}
+.main-style{
+    /* 필수 */
+    max-width: 1920px;
+    min-width: 1080px;
+    padding-left: 5% !important;
+    padding-right: 5% !important;
+    margin: auto;  
+    
+}
+.signUp-Title{
+    margin-top:30px;
+    padding-left:10px;
+    border-left:5px solid rgb(118, 205, 188);
+}
+.signUp-Title-text{
+    font-family:"baskinR";
+    font-weight: bold;
+    font-size:20px;
+}
+.sign-Div{
+    margin-top:30px;
+    border:3px solid rgb(118, 205, 188);
+    border-radius: 20px;
+    min-height:500px;
+    min-width:1350px;
+    display:flex;
+    align-items: center;
+    
+    
+}
+.sign-Div > div{
+    display: flex;
+    flex-basis:50%;
+}
+.sign-Div-inner{
+    flex-basis:100%;
+    display:flex;
+    flex-direction: column;
+    align-items: center;  
+    border-right: 1px solid rgb(118, 205, 188);
+    height:880px;
+}
+.sign-Div-inner > div{
+    display: flex;
+    border-bottom:2px dotted rgb(118, 205, 188);
+    padding:30px;
+    width:80%;
+}
+.sign-Div-inner > div > div:first-child{
+    flex-basis : 24%;
+}
+.sign_input{
+    width:200px;
+    font-size:20px;
+}
+.input-field{
+    border-bottom:1px solid rgb(71, 71, 71);  
+    
+}
+.sign-Div input{
+    border:0px;
+}
+.addr-area{
+    display: flex;
+    flex-direction: column;
+}
+.allCheck{
+    padding-top:20px;
+}
+
+.form_content{
+    padding:20px;
+}
+.terms_desc{
+    border:1px solid rgb(118, 205, 188);
+    border-radius: 5px;
+    padding:10px;
+}
+
+.article{
+    height:200px;
+    overflow-y:scroll;
+    border:1px solid rgb(118, 205, 188);
+    border-radius: 5px;
+    padding:5px;
+}
+
+.emailOptIn{
+    margin-top:20px;
+}
+#sample6_detailAddress{
+    margin-top:20px;
+}
+.sign-btn-area{
+
+    border-bottom:0px;
+}
+
+.signUp-Btn{
+    width:100%;
+    background-color: rgb(206, 231, 65);
+    border:0px;
+    border-radius: 5px;
+    padding:10px;
+    font-size:20px;
+    font-weight: bold;
+    color:white;
+    cursor: pointer;
+}
+
+.signUp-inner-Title{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size:30px;
+    font-weight:bold;
+    font-family:"baskinR";
+    color:rgb(118, 205, 188);
+}
+
+.id_desc_div{
+    padding-left:30px;
+}
+.id_desc{
+    font-size:10px;
+    color:rgb(52, 52, 52)
+}
+.confirm{
+    color:yellowgreen;
+    font-size: 5px;
+}
+.error{
+    color:red;
+    font-size: 5px;
+
+}

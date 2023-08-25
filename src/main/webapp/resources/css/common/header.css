@@ -1,0 +1,62 @@
+@charset "UTF-8";
+*{
+    border:0px;
+     margin:0px;
+}
+
+@font-face {
+    font-family: "baskinB";
+    src: url(/comm/resources/font/BR_FONT/baskinB_OTPGRAPIC/baskinB.otf);
+}
+@font-face {
+    font-family: "baskinR";
+    src: url(/comm/resources/font/BR_FONT/baskinR_OTPGRAPIC/baskinR.otf);
+}
+.header_style{
+    display:flex;
+    max-width: 1920px;
+    min-width: 1340px;
+    height:60px;
+    background-color: white;
+    border-bottom:3px solid rgb(70, 255, 50);
+
+}
+.mainTitle{
+    font-family:"baskinB";
+    color:rgb(118, 205, 188);
+    font-size:25px;
+    cursor:pointer;
+    width:150px;
+}
+.header_style > div:nth-child(1){
+    flex-basis:30%;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left:20px;
+
+}
+.header_style > div:nth-child(2){
+    flex-basis:40%;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+
+}
+.header_style > div:nth-child(3){
+    flex-basis:30%;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: end;
+    padding-right:40px;
+   
+
+}
+.login_Btn{
+    background-color: white;
+    cursor:pointer;
+    font-family: "baskinR";
+    color:rgb(118, 205, 188);
+    font-size:20px;
+}

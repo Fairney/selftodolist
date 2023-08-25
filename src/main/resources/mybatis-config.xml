@@ -21,8 +21,8 @@
 
 <!-- 별칭 작성 부분 -->
 <typeAliases>
-
-    
+    <typeAlias type = "self.sh.comm.member.model.vo.Member" alias = "member"/>
+    <typeAlias type = "self.sh.comm.todolist.model.vo.Todolist" alias = "todolist"/>
 </typeAliases>
 
 
@@ -35,8 +35,7 @@
    <!-- <mapper resource="mapper 파일 경로" />
       경로를 작성하는 기준(시작지점)은 src/main/resources 폴더
    -->
-   
-
+   <mapper resource = "/mappers/memberMapper.xml"/>
+   <mapper resource = "/mappers/todolist-mapper.xml"/>
 </mappers>
-
 </configuration>
