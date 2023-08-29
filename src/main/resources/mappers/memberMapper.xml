@@ -8,6 +8,7 @@
 		<result property = "socialType" column = "SOCIAL_TYPE"/>
 		<result property = "memberAddr" column = "MEMBER_ADDR"/>
 		<result property = "memberEmail" column = "MEMBER_EMAIL"/>
+		<result property = "secessionFl" column = "SECESSION_FL"/>
 	</resultMap>
 	
 	<select id = "idDupCheck" parameterType = "string" resultType = "_int">
@@ -29,14 +30,15 @@
 	
 	<insert id = "signUp" parameterType = "member">
 	INSERT
-	INTO MEMBER(MEMBER_ID, MEMBER_PW, SOCIAL_TYPE,MEMBER_EMAIL,MEMBER_NICK,MEMBER_ADDR)
+	INTO MEMBER(MEMBER_ID, MEMBER_PW, SOCIAL_TYPE,MEMBER_EMAIL,MEMBER_NICK,MEMBER_ADDR,SECESSION_FL)
 	VALUES(
 		#{memberId},
 		#{memberPw},
 		'N',
 		#{memberEmail},
 		#{memberNick},
-		#{memberAddr}
+		#{memberAddr},
+		'N'
 	)
 	</insert>
 	<select id ="login" parameterType = "member" resultMap = "member_rm">
@@ -44,4 +46,30 @@
 	FROM MEMBER
 	WHERE MEMBER_ID = #{memberId}
 	</select>
+	<select id = "selectApiMemberCount" parameterType = "member"  resultType = "_int">
+	SELECT COUNT(MEMBER_ID)
+	FROM MEMBER
+	WHERE MEMBER_ID = #{memberId}
+	AND SOCIAL_TYPE = #{socialType}
+	AND SECESSION_FL = 'N'
+	</select>
+	<select id = "selectApiMember" parameterType = "member" resultMap = "member_rm">
+	SELECT *
+	FROM MEMBER
+	WHERE MEMBER_ID = #{memberId}
+	</select>
+	<insert id = "snssignUp" parameterType = "member">
+	INSERT
+	INTO MEMBER(MEMBER_ID, MEMBER_PW, SOCIAL_TYPE,MEMBER_EMAIL,MEMBER_NICK,MEMBER_ADDR,SECESSION_FL)
+	VALUES(
+		#{memberId},
+		#{memberPw},
+		'google',
+		#{memberId},
+		#{memberNick},
+		#{memberAddr},
+		'N'
+	)
+	</insert>
+	
 </mapper>

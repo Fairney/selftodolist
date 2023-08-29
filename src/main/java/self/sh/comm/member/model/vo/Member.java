@@ -18,4 +18,5 @@ public class Member {
 	private String memberEmail;
 	private String emailOptIn;
 	private String memberNick;
+	private String secessionFl;
 }

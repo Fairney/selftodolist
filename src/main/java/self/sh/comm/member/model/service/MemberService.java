@@ -14,4 +14,10 @@ public interface MemberService {
 
 	int emailDupCheck(Member member);
 
+	int selectApiMemberCount(Member member);
+
+	Member selectApiMember(Member member);
+
+	int snssignUp(Member member);
+
 }

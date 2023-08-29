@@ -1,15 +1,22 @@
 package self.sh.comm.member.controller;
 
+import java.net.URI;
 import java.util.List;
-
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +26,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import self.sh.comm.member.model.service.MemberService;
+import self.sh.comm.member.model.vo.GoogleLoginResponse;
+import self.sh.comm.member.model.vo.GoogleMember;
+import self.sh.comm.member.model.vo.GoogleOAuthRequest;
 import self.sh.comm.member.model.vo.Member;
+import self.sh.comm.todolist.controller.TodoListController;
 import self.sh.comm.todolist.model.service.TodolistService;
 import self.sh.comm.todolist.model.vo.Todolist;
 
@@ -38,6 +53,23 @@ public class MemberController {
 	private MemberService service;
 	@Autowired
 	private TodolistService todolistService;
+	
+	private Logger logger = LoggerFactory.getLogger(TodoListController.class);
+	
+	@Value("${google.auth.url}")
+	private String googleAuthUrl;
+
+	@Value("${google.login.url}")
+	private String googleLoginUrl;
+
+	@Value("${google.client.id}")
+	private String googleClientId;
+
+	@Value("${google.redirect.url}")
+	private String googleRedirectUrl;
+
+	@Value("${google.secret}")
+	private String googleClientSecret;
 	
 	@PostMapping("/login")
 	public String login(@ModelAttribute Member inputMember, Model model, RedirectAttributes ra,
@@ -149,5 +181,75 @@ public class MemberController {
 		return direction;
 	}
 	
+	@GetMapping("/getGoogleAuthUrl")
+	public ResponseEntity<?> getGoogleAuthUrl(HttpServletRequest request) throws Exception {
+
+		String reqUrl = googleLoginUrl + "/o/oauth2/v2/auth?client_id=" + googleClientId + "&redirect_uri="
+				+ googleRedirectUrl + "&response_type=code&scope=email%20profile%20openid&access_type=offline";
+
+		logger.info("myLog-LoginUrl : {}", googleLoginUrl);
+		logger.info("myLog-ClientId : {}", googleClientId);
+		logger.info("myLog-RedirectUrl : {}", googleRedirectUrl);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(URI.create(reqUrl));
+
+		return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+	}
+
+	@GetMapping("/oauth_google_check")
+	public String oauth_google_check(HttpServletRequest request, @RequestParam(value = "code") String authCode,
+			Model model, Member member) throws Exception {
+		int isLogin = 0;
+		String googleUid = null;
+
+		GoogleOAuthRequest googleOAuthRequest = GoogleOAuthRequest.builder().clientId(googleClientId)
+				.clientSecret(googleClientSecret).code(authCode).redirectUri(googleRedirectUrl)
+				.grantType("authorization_code").build();
+
+		RestTemplate restTemplate = new RestTemplate();
+
+		ResponseEntity<GoogleLoginResponse> apiResponse = restTemplate.postForEntity(googleAuthUrl + "/token",
+				googleOAuthRequest, GoogleLoginResponse.class);
+		GoogleLoginResponse googleLoginResponse = apiResponse.getBody();
+
+		logger.info("responseBody {}", googleLoginResponse.toString());
+
+		String googleToken = googleLoginResponse.getId_token();
+
+		String requestUrl = UriComponentsBuilder.fromHttpUrl(googleAuthUrl + "/tokeninfo")
+				.queryParam("id_token", googleToken).toUriString();
+
+		String resultJson = restTemplate.getForObject(requestUrl, String.class);
+		ObjectMapper objectMapper = new ObjectMapper();
+		GoogleMember googleMember = objectMapper.readValue(resultJson, GoogleMember.class);
+		member.setMemberId(googleMember.getEmail());
+		member.setSocialType("google");
+		String pattern = "\\((.*?)\\)";
+
+		Pattern regex = Pattern.compile(pattern);
+		Matcher matcher = regex.matcher(googleMember.getName());
+
+		if (matcher.find()) {
+			String memberNick = matcher.group(1);
+			member.setMemberNick(memberNick);
+			//member.setMemberName(googleMember.getName().substring(0, googleMember.getName().indexOf("(")));
+		}
+
+		isLogin = service.selectApiMemberCount(member);
+		if (isLogin > 0) {
+			// 로그인 유저가 있으면 로그인을 진행.
+			Member loginMember = service.selectApiMember(member);
+			model.addAttribute("loginMember", loginMember);
+
+			return "todolist/todolist";
+		} else {
+			int signUpInt = service.snssignUp(member);
+			Member loginMember = member;
+			model.addAttribute("loginMember", member);
+			// int signUp = service.insertApiMember(googleMember);
+			return "todolist/todolist";
+		}
+	}
 	
 }

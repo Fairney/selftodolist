@@ -51,4 +51,19 @@ public class MemberServiceImpl implements MemberService{
 		// TODO Auto-generated method stub
 		return dao.emailDupCheck(member);
 	}
+	@Override
+	public int selectApiMemberCount(Member member) {
+		// TODO Auto-generated method stub
+		return dao.selectApiMemberCount(member);
+	}
+	@Override
+	public Member selectApiMember(Member member) {
+		// TODO Auto-generated method stub
+		return dao.selectApiMember(member);
+	}
+	@Override
+	public int snssignUp(Member member) {
+		// TODO Auto-generated method stub
+		return dao.snssignUp(member);
+	}
 }

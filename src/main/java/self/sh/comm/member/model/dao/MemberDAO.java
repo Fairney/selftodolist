@@ -34,6 +34,18 @@ public class MemberDAO {
 		// TODO Auto-generated method stub
 		return sqlSession.selectOne("memberMapper.login",inputMember);
 	}
+	public int selectApiMemberCount(Member member) {
+		// TODO Auto-generated method stub
+		return sqlSession.selectOne("memberMapper.selectApiMemberCount",member);
+	}
+	public Member selectApiMember(Member member) {
+		// TODO Auto-generated method stub
+		return sqlSession.selectOne("memberMapper.selectApiMember",member);
+	}
+	public int snssignUp(Member member) {
+		// TODO Auto-generated method stub
+		return sqlSession.insert("memberMapper.snssignUp",member);
+	}
 	
 	
 }
