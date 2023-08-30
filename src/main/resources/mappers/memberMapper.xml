@@ -57,11 +57,25 @@
 	SELECT *
 	FROM MEMBER
 	WHERE MEMBER_ID = #{memberId}
+	AND
+		<choose>
+			<when test='socialType = "google"'>
+				SOCIAL_TYPE = 'google'
+			</when>
+			<when test='socialType = "kakao"'>
+				SOCIAL_TYPE = 'KA'
+			</when>
+			<otherwise>
+				SOCIAL_TYPE = 'N'
+			</otherwise>
+		</choose>
 	</select>
 	<insert id = "snssignUp" parameterType = "member">
 	INSERT
 	INTO MEMBER(MEMBER_ID, MEMBER_PW, SOCIAL_TYPE,MEMBER_EMAIL,MEMBER_NICK,MEMBER_ADDR,SECESSION_FL)
-	VALUES(
+	<choose>
+		<when test = 'socialType = "google"'>
+		VALUES(
 		#{memberId},
 		#{memberPw},
 		'google',
@@ -70,6 +84,30 @@
 		#{memberAddr},
 		'N'
 	)
+		</when>
+		<when test = 'socialType = "kakao"'>
+		VALUES(
+		#{memberId},
+		#{memberPw},
+		'kakao',
+		#{memberId},
+		#{memberNick},
+		#{memberAddr},
+		'N'
+	)
+		</when>
+		<when test = 'socialType = "N"'>
+		VALUES(
+		#{memberId},
+		#{memberPw},
+		'N',
+		#{memberId},
+		#{memberNick},
+		#{memberAddr},
+		'N'
+	)
+		</when>
+	</choose>
 	</insert>
 	
 </mapper>

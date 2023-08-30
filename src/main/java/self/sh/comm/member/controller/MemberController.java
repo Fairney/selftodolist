@@ -9,7 +9,10 @@ import java.util.regex.Pattern;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,12 +35,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 
 import lombok.extern.slf4j.Slf4j;
 import self.sh.comm.member.model.service.MemberService;
+import self.sh.comm.member.model.service.OAuthService;
 import self.sh.comm.member.model.vo.GoogleLoginResponse;
 import self.sh.comm.member.model.vo.GoogleMember;
 import self.sh.comm.member.model.vo.GoogleOAuthRequest;
+import self.sh.comm.member.model.vo.KakaoLoginResponse;
+import self.sh.comm.member.model.vo.KakaoMember;
+import self.sh.comm.member.model.vo.KakaoOAuthRequest;
 import self.sh.comm.member.model.vo.Member;
 import self.sh.comm.todolist.controller.TodoListController;
 import self.sh.comm.todolist.model.service.TodolistService;
@@ -53,7 +62,8 @@ public class MemberController {
 	private MemberService service;
 	@Autowired
 	private TodolistService todolistService;
-	
+	@Autowired
+	private OAuthService oauthService;
 	private Logger logger = LoggerFactory.getLogger(TodoListController.class);
 	
 	@Value("${google.auth.url}")
@@ -71,6 +81,22 @@ public class MemberController {
 	@Value("${google.secret}")
 	private String googleClientSecret;
 	
+	
+	@Value("${kakao.auth.url}")
+	private String kakaoAuthUrl;
+
+	@Value("${kakao.login.url}")
+	private String kakaoLoginUrl;
+
+	@Value("${kakao.clientId}")
+	private String kakaoClientId;
+
+	@Value("${kakao.redirectUri}")
+	private String kakaoRedirectUrl;
+
+	@Value("${kakao.secret}")
+	private String kakaoClientSecret;
+	private String apiResult = null;
 	@PostMapping("/login")
 	public String login(@ModelAttribute Member inputMember, Model model, RedirectAttributes ra,
 			HttpServletResponse resp, HttpServletRequest req,
@@ -78,7 +104,7 @@ public class MemberController {
 			Map<String,Object> todolist
 						) {
 		Member loginMember = service.login(inputMember);
-
+		
 		/*
 		 * Model : 데이터를 맵 형식(K:V) 형태로 담아 전달하는 용도의 객체 -> request, session을 대체하는 객체
 		 * 
@@ -251,5 +277,103 @@ public class MemberController {
 			return "todolist/todolist";
 		}
 	}
+	
+	@GetMapping("/getKaKaoAuthUrl")
+	public ResponseEntity<?> getKakaoAuthUrl(HttpServletRequest request) throws Exception {
+		//https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}
+		String reqUrl = kakaoAuthUrl + "?response_type=code&client_id=" + kakaoClientId + "&redirect_uri="
+				+ kakaoRedirectUrl;
+
+		logger.info("myLog-LoginUrl : {}", kakaoAuthUrl);
+		logger.info("myLog-ClientId : {}", kakaoClientId);
+		logger.info("myLog-RedirectUrl : {}", kakaoRedirectUrl);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(URI.create(reqUrl));
+
+		return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+	}
+
+	@GetMapping("/oauth_kakao_check")
+	public String oauth_kakao_check(HttpSession session,HttpServletRequest request, @RequestParam(value = "code") String authCode,
+			Model model, Member member) throws Exception {
+		int isLogin = 0;
+		String kakaoUid = null;
+		logger.info(authCode);
+//		KakaoOAuthRequest kakaoOAuthRequest = KakaoOAuthRequest.builder().client_id(kakaoClientId)
+//				.code(authCode).redirectUri(kakaoRedirectUrl)
+//				.grantType("authorization_code").build();
+//				//.client_secret(kakaoClientSecret)
+//
+//		RestTemplate restTemplate = new RestTemplate();
+//		restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+//		ResponseEntity<KakaoLoginResponse> apiResponse = restTemplate.postForEntity(kakaoLoginUrl + "/token",
+//				kakaoOAuthRequest, KakaoLoginResponse.class);
+//		KakaoLoginResponse kakaoLoginResponse = apiResponse.getBody();//POST방식임.
+//
+//		
+//		logger.info("responseBody {}", kakaoLoginResponse.toString());
+//
+//		String kakaoToken = kakaoLoginResponse.getId_token();
+//
+//		String requestUrl = UriComponentsBuilder.fromHttpUrl(kakaoAuthUrl + "/tokeninfo")
+//				.queryParam("id_token", kakaoToken).toUriString();
+		
+		OAuth2AccessToken oauthToken;
+		oauthToken = oauthService.getAccessToken(session, authCode);
+		
+		/* 로그인 사용자 정보를 읽어옵니다. */
+		apiResult = oauthService.getUserProfile(oauthToken);
+
+		JSONParser jsonParser = new JSONParser();
+		JSONObject jsonObj;
+
+		jsonObj = (JSONObject) jsonParser.parse(apiResult);
+		JSONObject response_obj = (JSONObject) jsonObj.get("kakao_account");
+		JSONObject response_obj2 = (JSONObject) response_obj.get("profile");
+
+//		String resultJson = restTemplate.getForObject(requestUrl, String.class);
+//		ObjectMapper objectMapper = new ObjectMapper();
+//		KakaoMember kakaoMember = objectMapper.readValue(resultJson, KakaoMember.class);
+		// 프로필 조회
+				String email = (String) response_obj.get("email");
+//				String nickname = (String) response_obj2.get("nickname");
+				
+				String socialType = "kakao";
+
+				logger.info("Email: " + email);
+				//logger.info("nickname: " + nickname);
+
+				logger.info("socialType:" + socialType);
+		//member.setMemberId(kakaoMember.getEmail());
+		member.setSocialType("google");
+		member.setMemberId(email);
+//		String pattern = "\\((.*?)\\)";
+//
+//		Pattern regex = Pattern.compile(pattern);
+//		Matcher matcher = regex.matcher(kakaoMember.getName());
+//
+//		if (matcher.find()) {
+//			String memberNick = matcher.group(1);
+//			member.setMemberNick(memberNick);
+//			//member.setMemberName(googleMember.getName().substring(0, googleMember.getName().indexOf("(")));
+//		}
+	
+		isLogin = service.selectApiMemberCount(member);
+		if (isLogin > 0) {
+			// 로그인 유저가 있으면 로그인을 진행.
+			Member loginMember = service.selectApiMember(member);
+			model.addAttribute("loginMember", loginMember);
+
+			return "todolist/todolist";
+		} else {
+			int signUpInt = service.snssignUp(member);
+			Member loginMember = member;
+			model.addAttribute("loginMember", member);
+			// int signUp = service.insertApiMember(googleMember);
+			return "todolist/todolist";
+		}
+	}
+	
 	
 }

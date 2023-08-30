@@ -52,7 +52,7 @@
                     <div class="snsLogin_area">
                         <h3>SNS 계정으로 로그인/회원가입</h3>
                         <div class="socialLoginDiv" >
-                            <button class="kakaoBtn" style = "cursor:pointer;" id="kakao_id_login" onclick="redirectToKakao()" type="button">
+                            <button class="kakaoBtn" style = "cursor:pointer;" id="kakao_id_login" onclick="location.href='${contextPath}/member/getKaKaoAuthUrl'" type="button">
                             <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 0C4.0294 0 0 3.09858 0 6.92081C0 9.39196 1.68456 11.5603 4.21858 12.7847C4.08072 13.2484 3.33268 15.7676 3.30291 15.9656C3.30291 15.9656 3.285 16.1144 3.38374 16.1711C3.48248 16.2277 3.59862 16.1837 3.59862 16.1837C3.88177 16.1452 6.88214 14.0897 7.40137 13.7327C7.92017 13.8044 8.45446 13.8416 9 13.8416C13.9706 13.8416 18 10.7431 18 6.92081C18 3.09858 13.9706 0 9 0Z" fill="black"></path></svg><p>빠른시작</p>
                             </button>
                             <button class="round" style = "visibility: hidden;"id="naver_id_login" type="button" onclick="redirectToNaver()">
